@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-
 import Login      from './pages/Login';
 import Dashboard  from './pages/Dashboard';
 import Analytics  from './pages/Analytics';
@@ -9,7 +8,8 @@ import Users      from './pages/Users';
 import Tasks      from './pages/Tasks';
 import {
   Withdrawals, Deposits, Transactions,
-  Handbook, Broadcast, Team, Statements, Settings
+  Handbook, Broadcast, Team, Statements, Settings,
+  Commissions
 } from './pages/AdminPages';
 
 function Guard({ children }) {
@@ -31,7 +31,7 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/login"       element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path="/dashboard"   element={<Guard><Dashboard /></Guard>} />
       <Route path="/analytics"   element={<Guard><Analytics /></Guard>} />
       <Route path="/users"       element={<Guard><Users /></Guard>} />
@@ -39,6 +39,7 @@ function AppRoutes() {
       <Route path="/withdrawals" element={<Guard><Withdrawals /></Guard>} />
       <Route path="/deposits"    element={<Guard><Deposits /></Guard>} />
       <Route path="/transactions"element={<Guard><Transactions /></Guard>} />
+      <Route path="/commissions" element={<Guard><Commissions /></Guard>} />
       <Route path="/handbook"    element={<Guard><Handbook /></Guard>} />
       <Route path="/broadcast"   element={<Guard><Broadcast /></Guard>} />
       <Route path="/team"        element={<Guard><Team /></Guard>} />

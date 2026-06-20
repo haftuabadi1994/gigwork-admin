@@ -14,6 +14,7 @@ const NAV = [
     { path:'/withdrawals',  label:'Withdrawals',      icon:'ti-arrow-up-right', badge:'withdrawal' },
     { path:'/deposits',     label:'Deposits',         icon:'ti-download',       badge:'deposit' },
     { path:'/transactions', label:'Transactions',     icon:'ti-receipt' },
+    { path:'/commissions',  label:'Commissions',      icon:'ti-percentage' },
   ]},
   { section:'Content',     items:[
     { path:'/handbook',     label:'Handbook & Levels',icon:'ti-book' },
