@@ -54,7 +54,7 @@ export default function Login() {
           }}>
             <span style={{ fontSize: 28, fontWeight: 800, color: '#fff' }}>ስ</span>
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#111827', margin: 0 }}>GigWork Admin</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#111827', margin: 0 }}> ስራ-Sira Admin</h1>
           <p style={{ fontSize: 13, color: '#9CA3AF', marginTop: 6 }}>Sign in to manage the platform</p>
         </div>
 
