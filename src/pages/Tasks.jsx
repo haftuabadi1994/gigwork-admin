@@ -7,22 +7,29 @@ const CATS = ['Video Rating','Writing','Data Entry','Survey','Delivery','Transla
 const LEVELS = ['intern','job1','job2','job3','job4','job5','job6','job7','job8','job9','job10'];
 const BADGE_COLORS = { 'Video Rating':'badge-green','Writing':'badge-blue','Data Entry':'badge-gray','Survey':'badge-amber','Delivery':'badge-green','Translation':'badge-blue','Social Engagement':'badge-amber','Other':'badge-gray' };
 
-const emptyTask = { title:'', description:'', category:'Video Rating', requirements:[''], earningETB:50, estimatedMinutes:15, totalSlots:100, isActive:true, minLevel:'intern', workDepositETB:0, trailerVideoUrl:'', trailerPlatform:'youtube' };
+// Must match PLATFORM_DEFAULT_VIEW_SECONDS in backend taskController.js
+const PLATFORM_DEFAULT_VIEW_SECONDS = { youtube: 30, tiktok: 15, instagram: 15, facebook: 20, other: 0 };
+
+const emptyTask = { title:'', description:'', category:'Video Rating', requirements:[''], earningETB:50, estimatedMinutes:15, totalSlots:100, isActive:true, minLevel:'intern', workDepositETB:0, trailerVideoUrl:'', trailerPlatform:'youtube', requiredViewSeconds:null };
 
 function TaskModal({ task, onClose, onSave }) {
   const [form, setForm] = useState(task ? { ...task, requirements: task.requirements?.length ? task.requirements : [''] } : { ...emptyTask });
   const [msg, setMsg]   = useState(null);
   const [loading, setLoading] = useState(false);
+  const [overrideView, setOverrideView] = useState(task?.requiredViewSeconds != null);
 
   const addReq = () => setForm(f => ({ ...f, requirements:[...f.requirements,''] }));
   const setReq = (i,v) => setForm(f => { const r=[...f.requirements]; r[i]=v; return {...f,requirements:r}; });
   const delReq = (i) => setForm(f => ({ ...f, requirements:f.requirements.filter((_,j)=>j!==i) }));
 
+  const platformDefault = PLATFORM_DEFAULT_VIEW_SECONDS[form.trailerPlatform] ?? 0;
+
   const save = async () => {
     setLoading(true); setMsg(null);
     try {
-      if (task?._id) await api.patch(`/admin/tasks/${task._id}`, form);
-      else await api.post('/admin/tasks', form);
+      const payload = { ...form, requiredViewSeconds: overrideView ? Number(form.requiredViewSeconds) || 0 : null };
+      if (task?._id) await api.patch(`/admin/tasks/${task._id}`, payload);
+      else await api.post('/admin/tasks', payload);
       onSave(); onClose();
     } catch (e) { setMsg({ type:'error', text: e.response?.data?.message||'Error' }); }
     finally { setLoading(false); }
@@ -51,9 +58,39 @@ function TaskModal({ task, onClose, onSave }) {
         <div className="form-group"><label className="form-label">Trailer video URL (optional)</label><input className="form-input" placeholder="https://youtube.com/watch?v=..." value={form.trailerVideoUrl} onChange={e=>setForm(f=>({...f,trailerVideoUrl:e.target.value}))} /></div>
         <div className="form-group"><label className="form-label">Platform</label>
           <select className="form-select" value={form.trailerPlatform||'youtube'} onChange={e=>setForm(f=>({...f,trailerPlatform:e.target.value}))}>
-            <option value="youtube">YouTube</option><option value="tiktok">TikTok</option><option value="instagram">Instagram</option><option value="other">Other</option>
+            <option value="youtube">YouTube</option><option value="tiktok">TikTok</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="other">Other</option>
           </select></div>
       </div>
+
+      {/* Required view time */}
+      {form.trailerVideoUrl && (
+        <div className="form-group" style={{ background:'var(--bg-2, #F8F9FA)', borderRadius:10, padding:12 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom: overrideView ? 10 : 0 }}>
+            <label className="toggle">
+              <input type="checkbox" checked={overrideView} onChange={e=>setOverrideView(e.target.checked)} />
+              <span className="toggle-slider" />
+            </label>
+            <span style={{ fontSize:13, color:'var(--text-2)' }}>
+              Override minimum watch time
+              {!overrideView && <span style={{ color:'var(--text-3)' }}> — using {form.trailerPlatform} default ({platformDefault}s)</span>}
+            </span>
+          </div>
+          {overrideView && (
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <input
+                className="form-input"
+                type="number"
+                min={0}
+                style={{ width:120 }}
+                value={form.requiredViewSeconds ?? platformDefault}
+                onChange={e=>setForm(f=>({...f,requiredViewSeconds:Number(e.target.value)}))}
+              />
+              <span style={{ fontSize:12, color:'var(--text-3)' }}>seconds the worker must watch before they can submit</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Requirements */}
       <div className="form-group">
         <label className="form-label" style={{ marginBottom:8 }}>Requirements</label>
@@ -102,12 +139,13 @@ function SubmissionsModal({ task, onClose }) {
       {msg && <Alert type={msg.type}>{msg.text}</Alert>}
       {loading ? <div style={{ padding:32, textAlign:'center', color:'var(--text-3)' }}>Loading…</div> : subs.length===0 ? <EmptyState icon="📋" title="No submissions yet" /> : (
         <table className="data-table">
-          <thead><tr><th>Worker</th><th>Status</th><th>Note</th><th>Submitted</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Worker</th><th>Status</th><th>Watched</th><th>Note</th><th>Submitted</th><th>Actions</th></tr></thead>
           <tbody>
             {subs.map(s => (
               <tr key={s._id}>
                 <td><div style={{ fontWeight:500 }}>{s.user?.name}</div><div style={{ fontSize:11, color:'var(--text-3)' }}>{s.user?.email}</div></td>
                 <td><span className={`badge ${STATUS_BADGE[s.status]||'badge-gray'}`}>{s.status.replace('_',' ')}</span></td>
+                <td style={{ fontSize:12, color:'var(--text-3)' }}>{s.watchedSeconds ? `${s.watchedSeconds}s` : '—'}</td>
                 <td style={{ fontSize:12, color:'var(--text-3)', maxWidth:180 }}>{s.submissionNote?.slice(0,60)||'—'}</td>
                 <td style={{ fontSize:12, color:'var(--text-3)' }}>{s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : '—'}</td>
                 <td>
@@ -171,7 +209,7 @@ export default function Tasks() {
         </div>
         {loading ? <div style={{ padding:32, textAlign:'center', color:'var(--text-3)' }}>Loading…</div> : (
           <table className="data-table">
-            <thead><tr><th>Title</th><th>Category</th><th>Earning</th><th>Slots</th><th>Level</th><th>Video</th><th>Active</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Title</th><th>Category</th><th>Earning</th><th>Slots</th><th>Level</th><th>Video</th><th>Watch req.</th><th>Active</th><th>Actions</th></tr></thead>
             <tbody>
               {tasks.map(t => (
                 <tr key={t._id}>
@@ -181,6 +219,9 @@ export default function Tasks() {
                   <td>{t.totalSlots-t.filledSlots} left</td>
                   <td><span style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', color:'var(--text-3)' }}>{t.minLevel}</span></td>
                   <td>{t.trailerVideoUrl ? <span className="badge badge-blue" style={{ fontSize:10 }}>🎬 {t.trailerPlatform}</span> : <span style={{ color:'var(--text-3)', fontSize:12 }}>—</span>}</td>
+                  <td style={{ fontSize:12, color:'var(--text-3)' }}>
+                    {t.trailerVideoUrl ? `${PLATFORM_DEFAULT_VIEW_SECONDS[t.trailerPlatform] ?? 0}s${t.requiredViewSeconds!=null ? ' (custom: '+t.requiredViewSeconds+'s)' : ''}` : '—'}
+                  </td>
                   <td><label className="toggle"><input type="checkbox" checked={t.isActive} onChange={()=>toggleActive(t)}/><span className="toggle-slider"/></label></td>
                   <td>
                     <div style={{ display:'flex', gap:6 }}>

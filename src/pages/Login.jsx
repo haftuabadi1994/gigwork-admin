@@ -66,7 +66,7 @@ export default function Login() {
             fontSize: 13, color: '#DC2626', marginBottom: 20,
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
-            <span>⚠️</span> {error}
+            <span></span> {error}
           </div>
         )}
 
