@@ -15,7 +15,6 @@ const NAV = [
     { path:'/deposits',     label:'Deposits',         icon:'ti-download',       badge:'deposit' },
     { path:'/transactions', label:'Transactions',     icon:'ti-receipt' },
     { path:'/commissions',  label:'Commissions',      icon:'ti-percentage' },
-    { path:'/equb',         label:'Digital Equb',     icon:'ti-rotate-clockwise' },
   ]},
   { section:'Content',     items:[
     { path:'/handbook',     label:'Handbook & Levels',icon:'ti-book' },
@@ -50,6 +49,7 @@ export default function Layout({ children, title, subtitle }) {
 
   return (
     <div className="layout">
+      {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo">ስራ-Sira <span>Admin Portal</span></div>
 
@@ -84,6 +84,7 @@ export default function Layout({ children, title, subtitle }) {
         </div>
       </aside>
 
+      {/* Main */}
       <main className="main">
         <div className="topbar">
           <div className="topbar-title">

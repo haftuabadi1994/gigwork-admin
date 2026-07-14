@@ -9,7 +9,7 @@ import Tasks      from './pages/Tasks';
 import {
   Withdrawals, Deposits, Transactions,
   Handbook, Broadcast, Team, Statements, Settings,
-  Commissions, DigitalEqub
+  Commissions
 } from './pages/AdminPages';
 
 function Guard({ children }) {
@@ -31,22 +31,21 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <Routes>
-      <Route path="/login"        element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
-      <Route path="/dashboard"    element={<Guard><Dashboard /></Guard>} />
-      <Route path="/analytics"    element={<Guard><Analytics /></Guard>} />
-      <Route path="/users"        element={<Guard><Users /></Guard>} />
-      <Route path="/tasks"        element={<Guard><Tasks /></Guard>} />
-      <Route path="/withdrawals"  element={<Guard><Withdrawals /></Guard>} />
-      <Route path="/deposits"     element={<Guard><Deposits /></Guard>} />
-      <Route path="/transactions" element={<Guard><Transactions /></Guard>} />
-      <Route path="/commissions"  element={<Guard><Commissions /></Guard>} />
-      <Route path="/equb"         element={<Guard><DigitalEqub /></Guard>} />
-      <Route path="/handbook"     element={<Guard><Handbook /></Guard>} />
-      <Route path="/broadcast"    element={<Guard><Broadcast /></Guard>} />
-      <Route path="/team"         element={<Guard><Team /></Guard>} />
-      <Route path="/statements"   element={<Guard><Statements /></Guard>} />
-      <Route path="/settings"     element={<Guard><Settings /></Guard>} />
-      <Route path="*"             element={<Navigate to="/dashboard" replace />} />
+      <Route path="/login"       element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/dashboard"   element={<Guard><Dashboard /></Guard>} />
+      <Route path="/analytics"   element={<Guard><Analytics /></Guard>} />
+      <Route path="/users"       element={<Guard><Users /></Guard>} />
+      <Route path="/tasks"       element={<Guard><Tasks /></Guard>} />
+      <Route path="/withdrawals" element={<Guard><Withdrawals /></Guard>} />
+      <Route path="/deposits"    element={<Guard><Deposits /></Guard>} />
+      <Route path="/transactions"element={<Guard><Transactions /></Guard>} />
+      <Route path="/commissions" element={<Guard><Commissions /></Guard>} />
+      <Route path="/handbook"    element={<Guard><Handbook /></Guard>} />
+      <Route path="/broadcast"   element={<Guard><Broadcast /></Guard>} />
+      <Route path="/team"        element={<Guard><Team /></Guard>} />
+      <Route path="/statements"  element={<Guard><Statements /></Guard>} />
+      <Route path="/settings"    element={<Guard><Settings /></Guard>} />
+      <Route path="*"            element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
